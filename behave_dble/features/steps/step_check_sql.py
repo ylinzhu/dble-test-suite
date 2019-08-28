@@ -11,6 +11,8 @@ from time import sleep
 import MySQLdb
 from behave import *
 from hamcrest import *
+
+from explain_noshard_query import do_explain_for_sql
 from step_reload import get_dble_conn
 
 from lib.DBUtil import DBUtil
@@ -125,6 +127,8 @@ def do_query(context, line_nu, sql, to_close):
         context.logger.info("compare sql result:")
         compare_result(context, line_nu, sql, result1, result2, err1, err2)
         context.logger.info("toClose is : {0}".format(to_close))
+
+        do_explain_for_sql(context, line_nu, sql, to_close)
         if to_close:
             context.conn_mysql.close()
             context.conn_dble.close()
