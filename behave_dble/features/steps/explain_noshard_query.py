@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2019/8/28 AM11:16
 # @Author  : zhaohongjie@actionsky.com
+
+# to check logs/explain_err.log not exist after sql_nosharding.feature finished, else something may go wrong
 def do_explain_for_sql(context, id, sql, to_close):
     targets = ["special_nosharding/select/join_no_sharding.sql", "special_nosharding/select/reference_no_sharding.sql","special_nosharding/select/subquery_no_sharding.sql"]
     if context.sql_file in targets:
