@@ -175,11 +175,24 @@ def stop_dble_in_node(context, node):
     dble_pid_exist,dble_dir_exist = check_dble_exist(ssh_client, dble_install_path)
 
     if dble_pid_exist:
-        cmd_guard = "ps -ef|grep dble|grep 'start'| grep -v grep | awk '{print $3}' | xargs kill -9"
-        cmd_core = "ps -ef|grep dble|grep 'start'| grep -v grep | awk '{print $2}' | xargs kill -9"
-        rc1, sto1, ste1 = ssh_client.exec_command(cmd_guard)
-        rc2, sto2, ste2 = ssh_client.exec_command(cmd_core)
-        assert_that(len(ste1)==0 and len(ste2)==0, "kill dble process fail for:{0},{1}".format(ste1,ste2))
+        cmd_stop_dble = "{0}/dble/bin/dble stop".format(dble_install_path)
+        exit_code, std_out, std_err = ssh_client.exec_command(cmd_stop_dble)
+
+        dble_pid_exist2=True
+        check_times=5
+
+        while (dble_pid_exist2 and check_times>0):
+            time.sleep(1)
+            dble_pid_exist2, dble_dir_exist2 = check_dble_exist(ssh_client, dble_install_path)
+            check_times = check_times-1
+
+        assert_that(not dble_pid_exist2, "after bin/dble stop, dble pid still exist")
+
+        # cmd_guard = "ps -ef|grep dble|grep 'start'| grep -v grep | awk '{print $3}' | xargs kill -9"
+        # cmd_core = "ps -ef|grep dble|grep 'start'| grep -v grep | awk '{print $2}' | xargs kill -9"
+        # rc1, sto1, ste1 = ssh_client.exec_command(cmd_guard)
+        # rc2, sto2, ste2 = ssh_client.exec_command(cmd_core)
+        # assert_that(len(ste1)==0 and len(ste2)==0, "kill dble process fail for:{0},{1}".format(ste1,ste2))
 
     if dble_dir_exist:
         datetime=time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
