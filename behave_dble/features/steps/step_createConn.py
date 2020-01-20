@@ -9,6 +9,7 @@ from behave import *
 from hamcrest import *
 
 from step_reload import get_dble_conn
+from . lib.Node import get_ssh
 
 LOGGER = logging.getLogger('steps.install')
 
@@ -70,3 +71,24 @@ def step_impl(context, num, sql):
     else:
         if errs:
             assert False, "expect no err,but outcomes:{0} when create conn".format(errs)
+
+
+@Given('kill "{connType}" connection from "{rs_name}" in "{hostname}" success')
+def step_impl(context, connType, rs_name, hostname):
+    sshClient = get_ssh(context.mysqls, hostname)
+    killConn(sshClient, context, connType, rs_name, hostname)
+
+def killConn(sshClient, context, connType, rs_name, hostname):
+    rs = getattr(context, rs_name)
+    mysqlId = []
+    for row in rs:
+       if (row[22] == "true"):
+           mysqlId.append(row[2])
+           continue
+    assert len(mysqlId) > 0, "There is no {0} connection found!".format(connType)
+    for id in mysqlId:
+        query = "kill {0}".format(id)
+        cmd = u"mysql -p111111 -utest -P3306 -h127.0.0.1 -e '{0}' ".format(query)
+        context.logger.info("execute cmd: {0} in {1}".format(cmd,hostname))
+        rc, sto, ste = sshClient.exec_command(cmd)
+        assert rc==0,"kill connection failed for: {0}".format(ste)
