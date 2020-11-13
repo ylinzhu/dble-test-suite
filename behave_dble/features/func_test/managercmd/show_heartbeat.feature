@@ -3,7 +3,7 @@
 # Created by quexiuping at 2020/10/27
 Feature: #test show @@heartbeat http://10.186.18.11/jira/browse/DBLE0REQ-167
 
-  @skip_restart   @restore_mysql_service
+@restore_mysql_service
   Scenario: use show @@heartbeat in 9066 to check rs_code #1
     """
     {'restore_mysql_service':{'mysql-slave1':{'start_mysql':1},'mysql-master2':{'start_mysql':1}}}
